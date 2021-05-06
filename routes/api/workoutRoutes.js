@@ -26,7 +26,6 @@ router.get('/range', async (req, res) => {
                 // {$unwind: {"path":"$exercises", "preserveNullAndEmptyArrays": true }},
                 // {$group: {"_id": null, "totalDuration":{$sum:"$exercises.duration"}}},
                 {$project: {"day": "$day", "exercises": "$exercises", "totalDuration":{$sum:"$exercises.duration"}}}
-
             ]
         )
         res.status(200).json(workoutData)
@@ -35,9 +34,30 @@ router.get('/range', async (req, res) => {
     }
 })
 
+router.post('/', async (req, res) => {
+    try {
+        const newWorkout = await Workout.create(req.body)
+        res.status(200).json(newWorkout)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
 router.get('/:id', async (req, res) => {
     try {
         const workoutData = await Workout.findById(req.params.id)
+        res.status(200).json(workoutData)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+router.put('/:id', async (req, res) => {
+    try {
+        const workoutData = await Workout.findByIdAndUpdate(
+            { _id: req.params.id },
+            { $push: {exercises: req.body } },
+        )
         res.status(200).json(workoutData)
     } catch (error) {
         res.status(500).json(error)
