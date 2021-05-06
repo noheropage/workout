@@ -17,14 +17,11 @@ router.get('/', async (req, res) => {
 router.get('/range', async (req, res) => {
     try {
         // get last 7 workouts
-        // const workoutData = await Workout
-        //.find({}, null, {limit: 7, sort: {day: -1}})
         const workoutData = await Workout.aggregate(
             [
                 {$sort:{day:-1}},
                 {$limit: 7},
-                // {$unwind: {"path":"$exercises", "preserveNullAndEmptyArrays": true }},
-                // {$group: {"_id": null, "totalDuration":{$sum:"$exercises.duration"}}},
+                
                 {$project: {"day": "$day", "exercises": "$exercises", "totalDuration":{$sum:"$exercises.duration"}}}
             ]
         )
@@ -56,7 +53,8 @@ router.put('/:id', async (req, res) => {
     try {
         const workoutData = await Workout.findByIdAndUpdate(
             { _id: req.params.id },
-            { $push: {exercises: req.body } },
+            {$push: {exercises: req.body } },
+            {new: true}
         )
         res.status(200).json(workoutData)
     } catch (error) {
